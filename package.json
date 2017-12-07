@@ -1,5 +1,5 @@
 {
-  "name":"rest-api",
+  "name": "rest-api",
   "version": "1.0.0",
   "description": "A Node.js RESTful API Project (Build a shop API)",
   "main": "server.js",
@@ -9,6 +9,7 @@
   "author": "Martin Patino",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.16.2"
+    "express": "^4.16.2",
+    "morgan": "^1.9.0"
   }
 }
