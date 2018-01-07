@@ -1,66 +1,97 @@
 const express = require('express')
-
+const mongoose = require('mongoose')
 const router = express.Router()
+const torch = require('torch')
+
+// import products model from models. Utilize capitalize for consistency
+
+const Products = require('../models/products.js')
 
 router.get('/', (req, res, next) => {
-	res.status(200).json({
-		message: "Handling GET for products"
+	Products.find()
+	.exec()
+	.then((doc)=>{
+		if(doc){
+			res.status(200).json(doc)
+		} else {
+			res.status(420).json(doc)
+		}
+	})
+	.catch((error)=>{
+		res.status(500).json(doc)
 	})
 })
 
 router.post('/', (req, res, next) => {
-	var products = {
+
+	// create new instance of of products 
+
+	const products = new Products({
+		_id: new mongoose.Types.ObjectId,
 		name: req.body.name,
 		price: req.body.price
-	}
-	res.status(201).json({
-		message: "Handling POST for products",
-		productPrice: products
+	})
+	products.save()
+	.then((result) => {
+		res.status(201).json({
+			message: 'Handling post request to /products',
+			createdProduct: result
+			})
+		})
+	.catch((error) => {
+		res.status(500).json({
+			message: 'Error post request to /products',
+			createdProduct: error
+		})
 	})
 })
 
 
 router.get('/:productId', (req, res, next) => {
-	const id = req.param.productId
-	if (id % 2 == 0) {
-		res.status(200).json({
-			message: "Handling get by id  for products",
-			id: id
+	const id = req.params.productId
+	Products.findById(id)
+		.exec()
+		.then((doc) => {
+			if(doc){
+				res.status(200).json({ message:'sucess' ,doc})
+			} else {
+				res.status(404).json({message:"No Valid Entry", doc: doc})
+				}
+			})
+		.catch((error) => {
+			res.status(500).json({
+				message: 'Error get by ID to /products',
+				createdProduct: error
+			})
 		})
-	} else {
-		res.status(200).json({
-			message: "Handling get by id  for was error as it was odd"
-		})
-	}
 })
 
 router.patch('/:productId', (req, res, next) => {
-	const id = req.param.productId
-	if (id % 2 == 0) {
-		res.status(200).json({
-			message: "Handling patch by id for products",
-			id: id
-		})
-	} else {
-		res.status(200).json({
-			message: "Handling patch by id  for was error as it was odd"
-		})
+	const _id = req.params.productId
+	let updateOps = {}
+	for (const ops of req.body){
+		updateOps[ops.propName] = ops.value
 	}
-
+	Products.update({_id}, {$set: updateOps})
+	.exec()
+	.then((result)=>{
+		res.status(200).json({message: "data changed", result})
+	})
+	.catch((error)=>{
+		res.status(500).json({result: "Data not deleted"})
+	})
 })
 
 router.delete('/:productId', (req, res, next) => {
-	const id = req.param.productId
-	if (id % 2 == 0) {
-		res.status(200).json({
-			message: "Handling delete by id  for products",
-			id: id
-		})
-	} else {
-		res.status(200).json({
-			message: "Handling delete by id  for was error as it was odd"
-		})
-	}
+	const id = req.params.productId
+	Products.remove({_id: id})
+	.exec()
+	.then((result)=>{
+		res.status(200).json(result)
+	})
+	.catch((error)=>{
+		res.status(500).json({result: "Data not deleted"})
+	})
 })
 
 

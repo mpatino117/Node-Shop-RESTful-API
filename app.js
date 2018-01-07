@@ -2,18 +2,12 @@ const express = require('express')
 const app = express()
 const morgan = require('morgan')
 const bodyParser = require('body-parser')
-const moongoose = require('mongoose')
+const mongoose = require('mongoose')
+const pw = 'node-rest'
 
-const {
-  MONGO_DB_PW
-} = process.env
-
-console.log(process.env.MONGO_DB_PW, 'test')
-
-moongoose.connect('mongodb://mpatino117:' + MONGO_DB_PW + '@node-rest-shop-shard-00-00-jbfqu.mongodb.net:27017,node-rest-shop-shard-00-01-jbfqu.mongodb.net:27017,node-rest-shop-shard-00-02-jbfqu.mongodb.net:27017/test?ssl=true&replicaSet=node-rest-shop-shard-0&authSource=admin', {
+mongoose.connect(`mongodb://node-rest:${pw}@cluster0-shard-00-00-omgf8.mongodb.net:27017,cluster0-shard-00-01-omgf8.mongodb.net:27017,cluster0-shard-00-02-omgf8.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin`, {
   useMongoClient: true
 })
-
 
 // set routes for modularity
 
