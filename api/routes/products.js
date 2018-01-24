@@ -9,33 +9,65 @@ const Products = require('../models/products')
 
 router.get('/', (req, res, next) => {
 	Products.find()
+
+	// select is a moongose method that allows us to filter
+	//  only data points we want in this instance it is only  name, price, id
+
+		.select('name price _id')
 		.exec()
-		.then((doc) => {
-			if (doc) {
-				res.status(200).json(doc)
-			} else {
-				res.status(420).json(doc)
-			}
-		})
+		.then((docs) => {
+
+		//  validating data beign requested or outputed to user 
+		// map response and created a new object
+			
+		const response = {
+			count: docs.length,
+			products: docs.map(doc => {
+				return {
+					name: doc.name,
+					price: doc.price,
+					_id: doc._id,
+					request: {
+						type: "GET",
+						url: "http://localhost:3000/products/" + doc._id
+					}
+				}
+			})
+		}	
+		if(docs){
+			res.status(200).json(response);
+		} else {
+			res.status(420).json(response);
+		}
+	})
 		.catch((error) => {
-			res.status(500).json(doc)
-		})
-})
+			res.status(500).json(error)
+    })
+	})
+
 
 router.post('/', (req, res, next) => {
 
 	// create new instance of of products 
-
 	const products = new Products({
 		_id: new mongoose.Types.ObjectId,
 		name: req.body.name,
 		price: req.body.price
 	})
+
 	products.save()
 		.then((result) => {
 			res.status(201).json({
 				message: 'Handling post request to /products',
-				createdProduct: result
+				createdProduct: {
+					_id:res._id,
+					name:result.name,
+					price:result.price,
+					request:{
+						type:'GET',
+						url: `http://localhost:3000/products/${result._id}`
+					}
+				}
 			})
 		})
 		.catch((error) => {
@@ -54,7 +86,13 @@ router.get('/:productId', (req, res, next) => {
 		.then((doc) => {
 			if (doc) {
 				res.status(200).json({
-					message: 'sucess',doc})
+					message:"Update was successful",
+					product:{
+						_id:doc._id,
+						name:doc.name,
+						price:doc.price,
+					}
+				})
 			} else {
 				res.status(404).json({
 					message: "No Valid Entry",
@@ -80,28 +118,40 @@ router.patch('/:productId', (req, res, next) => {
 		.exec()
 		.then((result) => {
 			res.status(200).json({
-				message: "data changed",
-				result
+			  message: 'Product updated',
+          request: {
+						type: 'GET',
+						url: 'http://localhost:3000/products/' + result._id
+          }
 			})
 		})
 		.catch((error) => {
 			res.status(500).json({
-				result: "Data not deleted"
+				result: "Data not updated",
+				error: error
 			})
 		})
 })
 
 router.delete('/:productId', (req, res, next) => {
-	const id = req.params.productId
+  const id = req.params.productId;
 	Products.remove({_id: id})
 		.exec()
 		.then((result) => {
-			res.status(200).json(result)
+			res.status(200).json({
+				message:'Product Deleted',
+				request:{
+					type:'POST',
+					url: 'http://localhost:3000/products'
+					// body: { name: 'String', price: 'Number'} 
+				}
+			})
 		})
 		.catch((error) => {
+			// console.log(error)
 			res.status(500).json({
 				result: "Data not deleted"
-			})
+				})
 		})
 })
 

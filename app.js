@@ -3,11 +3,17 @@ const app = express()
 const morgan = require('morgan')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
-const pw = 'node-rest'
+const torch = require('torch')
 
-mongoose.connect(`mongodb://node-rest:${pw}@cluster0-shard-00-00-omgf8.mongodb.net:27017,cluster0-shard-00-01-omgf8.mongodb.net:27017,cluster0-shard-00-02-omgf8.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin`, {
+// dotenv to set enviroment variable package in hidden .env file
+
+require('dotenv').config()
+
+mongoose.connect(`mongodb://node-rest:${process.env.MONGO_DB_PW}@cluster0-shard-00-00-omgf8.mongodb.net:27017,cluster0-shard-00-01-omgf8.mongodb.net:27017,cluster0-shard-00-02-omgf8.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin`, {
   useMongoClient: true
 })
+
+mongoose.Promise = global.Promise
 
 // set routes for modularity
 
