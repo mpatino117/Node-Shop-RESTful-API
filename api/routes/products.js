@@ -5,7 +5,7 @@ const torch = require('torch')
 
 // import products model from models. Utilize capitalize for consistency
 
-const Products = require('../models/products')
+const Products = require('../models/product')
 
 router.get('/', (req, res, next) => {
 	Products.find()
@@ -49,13 +49,13 @@ router.get('/', (req, res, next) => {
 router.post('/', (req, res, next) => {
 
 	// create new instance of of products 
-	const products = new Products({
+	const Product = new Products({
 		_id: new mongoose.Types.ObjectId,
 		name: req.body.name,
 		price: req.body.price
 	})
 
-	products.save()
+	Product.save()
 		.then((result) => {
 			res.status(201).json({
 				message: 'Handling post request to /products',
