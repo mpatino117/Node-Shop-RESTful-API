@@ -3,6 +3,19 @@ const mongoose = require('mongoose')
 const router = express.Router()
 const torch = require('torch')
 
+const multer = require('multer')
+
+const storage = multer.diskStorage({
+	destination: function(req, file, cb){
+		cb(null, './uploads')
+	},
+	filename: function(req, file, cb){
+    cb(null, new Date().toISOString() + '-' + file.originalname)
+	}
+})
+
+const upload = multer({storage: storage})
+
 // import products model from models. Utilize capitalize for consistency
 
 const Products = require('../models/product')
@@ -13,7 +26,7 @@ router.get('/', (req, res, next) => {
 	// select is a moongose method that allows us to filter
 	//  only data points we want in this instance it is only  name, price, id
 
-		.select('name price _id')
+		.select('name price _id productImage')
 		.exec()
 		.then((docs) => {
 
@@ -24,9 +37,10 @@ router.get('/', (req, res, next) => {
 			count: docs.length,
 			products: docs.map(doc => {
 				return {
+					_id: doc._id,
 					name: doc.name,
 					price: doc.price,
-					_id: doc._id,
+					productImage:doc.productImage,
 					request: {
 						type: "GET",
 						url: "http://localhost:3000/products/" + doc._id
@@ -46,13 +60,16 @@ router.get('/', (req, res, next) => {
 	})
 
 
-router.post('/', (req, res, next) => {
+router.post('/', upload.single('productImage'), (req, res, next) => {
+
+	torch.yellow(req.file)
 
 	// create new instance of of products 
 	const Product = new Products({
 		_id: new mongoose.Types.ObjectId,
 		name: req.body.name,
-		price: req.body.price
+		price: req.body.price,
+		productImage:req.file.path
 	})
 
 	Product.save()
@@ -86,7 +103,7 @@ router.get('/:productId', (req, res, next) => {
 		.then((doc) => {
 			if (doc) {
 				res.status(200).json({
-					message:"Update was successful",
+					message:"Get single request",
 					product:{
 						_id:doc._id,
 						name:doc.name,
@@ -143,12 +160,10 @@ router.delete('/:productId', (req, res, next) => {
 				request:{
 					type:'POST',
 					url: 'http://localhost:3000/products'
-					// body: { name: 'String', price: 'Number'} 
 				}
 			})
 		})
 		.catch((error) => {
-			// console.log(error)
 			res.status(500).json({
 				result: "Data not deleted"
 				})

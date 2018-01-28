@@ -9,7 +9,7 @@ const torch = require('torch')
 
 require('dotenv').config()
 
-mongoose.connect(`mongodb://node-rest:${process.env.MONGO_DB_PW}@cluster0-shard-00-00-omgf8.mongodb.net:27017,cluster0-shard-00-01-omgf8.mongodb.net:27017,cluster0-shard-00-02-omgf8.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin`, {
+mongoose.connect(`mongodb://mpatino117:${process.env.MONGO_DB_PW}@node-rest-shard-00-00-nqmpg.mongodb.net:27017,node-rest-shard-00-01-nqmpg.mongodb.net:27017,node-rest-shard-00-02-nqmpg.mongodb.net:27017/test?ssl=true&replicaSet=node-rest-shard-0&authSource=admin`, {
   useMongoClient: true
 })
 
@@ -24,6 +24,7 @@ const orders_routes = require('./api/routes/orders')
 
 app.use(morgan('dev'))
 // parse url and json to make it readable
+app.use('/uploads', express.static('uploads'))
 app.use(bodyParser.urlencoded({
   urlencoded: false
 }))
