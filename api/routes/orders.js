@@ -5,10 +5,11 @@ const torch = require('torch')
 
 // import Orders model from models. Utilize capitalize for consistency
 
+const checkAuth = require('../middleware/check_auth')
 const Product = require('../models/product')
 const Order = require('../models/order')
 
-router.get('/', (req, res, next) => {
+router.get('/', checkAuth, (req, res, next) => {
   Product.findById(req.body.productId)
     .then(()=>{
       Order.find()
@@ -40,7 +41,7 @@ router.get('/', (req, res, next) => {
     })
 })
 
-router.post('/', (req, res, next) => {
+router.post('/', checkAuth, (req, res, next) => {
   Product.findById(req.body.productId)
     .then((product)=>{
       if(!product){
@@ -76,7 +77,7 @@ router.post('/', (req, res, next) => {
   })
 })
 
-router.get('/:orderId', (req, res, next) => {
+router.get('/:orderId', checkAuth, (req, res, next) => {
   Orders.findById(req.params.OrderId)
     .exec()
     .then((doc) => {
@@ -90,7 +91,7 @@ router.get('/:orderId', (req, res, next) => {
     })
 })
 
-router.delete('/:orderId', (req, res, next) => {
+router.delete('/:orderId', checkAuth, (req, res, next) => {
   Orders.findById(req.params.OrderId)
     .exec()
     .then((doc) => {

@@ -2,8 +2,10 @@ const express = require('express')
 const mongoose = require('mongoose')
 const router = express.Router()
 const torch = require('torch')
-
 const multer = require('multer')
+
+const checkAuth = require('../middleware/check_auth')
+const Products = require('../models/product')
 
 const storage = multer.diskStorage({
 	destination: function(req, file, cb){
@@ -18,7 +20,6 @@ const upload = multer({storage: storage})
 
 // import products model from models. Utilize capitalize for consistency
 
-const Products = require('../models/product')
 
 router.get('/', (req, res, next) => {
 	Products.find()
@@ -60,9 +61,7 @@ router.get('/', (req, res, next) => {
 	})
 
 
-router.post('/', upload.single('productImage'), (req, res, next) => {
-
-	torch.yellow(req.file)
+router.post('/', checkAuth, upload.single('productImage'), (req, res, next) => {
 
 	// create new instance of of products 
 	const Product = new Products({
@@ -96,7 +95,7 @@ router.post('/', upload.single('productImage'), (req, res, next) => {
 })
 
 
-router.get('/:productId', (req, res, next) => {
+router.get('/:productId', checkAuth,(req, res, next) => {
 	const id = req.params.productId
 	Products.findById(id)
 		.exec()
@@ -125,7 +124,7 @@ router.get('/:productId', (req, res, next) => {
 		})
 })
 
-router.patch('/:productId', (req, res, next) => {
+router.patch('/:productId', checkAuth,(req, res, next) => {
 	const _id = req.params.productId
 	let updateOps = {}
 	for (const ops of req.body) {
@@ -150,7 +149,7 @@ router.patch('/:productId', (req, res, next) => {
 		})
 })
 
-router.delete('/:productId', (req, res, next) => {
+router.delete('/:productId', checkAuth,(req, res, next) => {
   const id = req.params.productId;
 	Products.remove({_id: id})
 		.exec()
