@@ -19,6 +19,7 @@ mongoose.Promise = global.Promise
 
 const products_routes = require('./api/routes/products')
 const orders_routes = require('./api/routes/orders')
+const users_routes = require('./api/routes/users')
 
 // use morgan to handle request
 
@@ -44,6 +45,8 @@ app.use((req, res, next) => {
 
 app.use('/products', products_routes)
 app.use('/orders', orders_routes)
+app.use('/users', users_routes)
+
 
 app.use((req, res, next) => {
   let error = new Error('Not Found')
